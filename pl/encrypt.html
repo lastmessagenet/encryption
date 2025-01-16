@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szyfrowanie AES-GCM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFFFFF;
+            color: #49454F;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+        }
+        h1 {
+            color: #113930;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #BDBDBD;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input:focus, textarea:focus {
+            border-color: #5D867B;
+            outline: none;
+        }
+        button {
+            background-color: #113930;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background-color: #5D867B;
+        }
+        .output {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #BDBDBD;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+        .large-output {
+            height: 200px;
+        }
+        .error {
+            color: #E23D52;
+            font-weight: 500;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Szyfrowanie AES-GCM</h1>
+        <form id="encryptForm">
+            <div class="form-group">
+                <label for="message">Wiadomość</label>
+                <textarea id="message" rows="3" placeholder="Wprowadź swoją wiadomość..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="password">Hasło</label>
+                <input type="text" id="password" placeholder="Wprowadź hasło">
+            </div>
+            <button type="button" onclick="encryptMessage()">Zaszyfruj</button>
+            <div class="form-group">
+                <label>Zaszyfrowane dane (Base64 JSON)</label>
+                <textarea id="encryptedOutput" class="output large-output" readonly></textarea>
+            </div>
+        </form>
+        <p id="error" class="error"></p>
+    </div>
+
+    <script>
+        async function encryptMessage() {
+            const message = document.getElementById("message").value;
+            const password = document.getElementById("password").value;
+
+            if (!message || !password) {
+                displayError("Proszę podać zarówno wiadomość, jak i hasło.");
+                return;
+            }
+
+            try {
+                // Generate random salt and IV
+                const salt = crypto.getRandomValues(new Uint8Array(16));
+                const iv = crypto.getRandomValues(new Uint8Array(12));
+
+                const encoder = new TextEncoder();
+                const keyMaterial = await crypto.subtle.importKey(
+                    "raw",
+                    encoder.encode(password),
+                    { name: "PBKDF2" },
+                    false,
+                    ["deriveKey"]
+                );
+                
+                const key = await crypto.subtle.deriveKey(
+                    {
+                        name: "PBKDF2",
+                        salt: salt,
+                        iterations: 480000,
+                        hash: "SHA-256"
+                    },
+                    keyMaterial,
+                    { name: "AES-GCM", length: 256 },
+                    false,
+                    ["encrypt"]
+                );
+
+                const ciphertext = await crypto.subtle.encrypt(
+                    { name: "AES-GCM", iv: iv },
+                    key,
+                    encoder.encode(message)
+                );
+
+                // Convert to Base64
+                const encryptedData = {
+                    salt: btoa(String.fromCharCode(...salt)),
+                    iv: btoa(String.fromCharCode(...iv)),
+                    ciphertext: btoa(String.fromCharCode(...new Uint8Array(ciphertext)))
+                };
+
+                document.getElementById("encryptedOutput").value = btoa(JSON.stringify(encryptedData));
+                clearError();
+            } catch (error) {
+                displayError("Szyfrowanie nie powiodło się. Spróbuj ponownie.");
+            }
+        }
+
+        function displayError(message) {
+            document.getElementById("error").textContent = message;
+        }
+
+        function clearError() {
+            document.getElementById("error").textContent = "";
+        }
+    </script>
+</body>
+</html>

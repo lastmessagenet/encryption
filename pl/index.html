@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Message - Szyfrowanie Open Source</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFFFFF;
+            color: #49454F;
+            line-height: 1.6;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #113930;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .button {
+            background-color: #113930;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #5D867B;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        .note {
+            background-color: #f8f9fa;
+            border-left: 4px solid #113930;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Last Message - Szyfrowanie Open Source</h1>
+        
+        <div class="button-container">
+            <a href="encrypt.html" class="button">Zaszyfruj wiadomość</a>
+            <a href="decrypt.html" class="button">Odszyfruj wiadomość</a>
+        </div>
+
+        <h2>O Projekcie</h2>
+        <p>To jest implementacja open-source systemu szyfrowania/deszyfrowania używanego w aplikacji Last Message. Kod jest dostępny na GitHub i może być swobodnie audytowany, modyfikowany i używany zgodnie z licencją MIT.</p>
+
+        <div class="note">
+            <strong>Ważne:</strong> To narzędzie internetowe zapewnia takie samo szyfrowanie jak aplikacja Last Message, pozwalając na szyfrowanie wiadomości przed dodaniem ich do aplikacji lub odszyfrowanie otrzymanych wiadomości bez instalowania aplikacji.
+        </div>
+
+        <h2>Szczegóły Techniczne</h2>
+        
+        <h3>Algorytm Szyfrowania</h3>
+        <p>System wykorzystuje:</p>
+        <ul>
+            <li><strong>Szyfrowanie:</strong> AES-GCM (Advanced Encryption Standard w trybie Galois/Counter Mode)</li>
+            <li><strong>Derywacja klucza:</strong> PBKDF2 (Password-Based Key Derivation Function 2)</li>
+            <li><strong>Funkcja skrótu:</strong> SHA-256</li>
+            <li><strong>Długość klucza:</strong> 256 bitów</li>
+            <li><strong>Iteracje:</strong> 480 000 rund dla derywacji klucza</li>
+            <li><strong>Rozmiar soli:</strong> 16 bajtów (128 bitów)</li>
+            <li><strong>Rozmiar IV:</strong> 12 bajtów (96 bitów)</li>
+        </ul>
+
+        <h3>Format Danych</h3>
+        <p>Zaszyfrowane dane są przechowywane w formacie JSON zakodowanym w Base64 o następującej strukturze:</p>
+        <pre>{
+    "salt": "Losowa sól zakodowana w Base64",
+    "iv": "Wektor inicjalizacyjny zakodowany w Base64",
+    "ciphertext": "Zaszyfrowana wiadomość zakodowana w Base64"
+}</pre>
+
+        <p>Cały obiekt jest następnie ponownie kodowany w Base64 dla bezpiecznego transportu. Przykład końcowego wyniku:</p>
+        <pre>eyJzYWx0IjoiUk5LSGk1NFM3eXIybUhUMS9lZStpUT09IiwiaXYiOiJk
+SmFQR2JXc0VpK3hhUUJMIiwiY2lwaGVydGV4dCI6IndFYjV0RzFtcHJu
+YmlGRT0ifQ==</pre>
+
+        <h2>Funkcje Bezpieczeństwa</h2>
+        <ul>
+            <li>Bezpieczne generowanie losowej soli i IV</li>
+            <li>Silna derywacja klucza z wysoką liczbą iteracji</li>
+            <li>Szyfrowanie uwierzytelnione (tryb GCM)</li>
+            <li>Brak przechowywania danych w przeglądarce</li>
+            <li>Szyfrowanie/deszyfrowanie po stronie klienta</li>
+        </ul>
+
+        <h2>Przebieg Procesu</h2>
+        <h3>Szyfrowanie:</h3>
+        <ol>
+            <li>Generowanie losowej soli i IV</li>
+            <li>Derywacja klucza szyfrowania z hasła przy użyciu PBKDF2</li>
+            <li>Szyfrowanie wiadomości przy użyciu AES-GCM</li>
+            <li>Kodowanie komponentów w Base64</li>
+            <li>Tworzenie struktury JSON</li>
+            <li>Kodowanie całego JSON w Base64</li>
+        </ol>
+
+        <h3>Deszyfrowanie:</h3>
+        <ol>
+            <li>Dekodowanie zewnętrznego Base64 aby otrzymać JSON</li>
+            <li>Parsowanie JSON i dekodowanie komponentów</li>
+            <li>Derywacja klucza przy użyciu podanego hasła i soli</li>
+            <li>Deszyfrowanie wiadomości przy użyciu AES-GCM z IV</li>
+        </ol>
+
+        <h2>Kompatybilność z Przeglądarkami</h2>
+        <p>To narzędzie wykorzystuje Web Crypto API, które jest wspierane przez wszystkie nowoczesne przeglądarki, w tym:</p>
+        <ul>
+            <li>Chrome 49+</li>
+            <li>Firefox 43+</li>
+            <li>Safari 11+</li>
+            <li>Edge 12+</li>
+        </ul>
+
+        <div class="note">
+            <strong>Uwaga:</strong> Ze względów bezpieczeństwa, to narzędzie działa tylko w bezpiecznym kontekście (HTTPS lub localhost).
+        </div>
+
+        <h2>Kod Źródłowy</h2>
+        <p>Kompletny kod źródłowy jest dostępny na GitHub. Zachęcamy do przeglądania, wnoszenia wkładu lub zgłaszania problemów.</p>
+    </div>
+</body>
+</html>

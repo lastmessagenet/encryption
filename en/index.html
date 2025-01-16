@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Message - Open Source Encryption</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFFFFF;
+            color: #49454F;
+            line-height: 1.6;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #113930;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .button {
+            background-color: #113930;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #5D867B;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        .note {
+            background-color: #f8f9fa;
+            border-left: 4px solid #113930;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Last Message - Open Source Encryption</h1>
+        
+        <div class="button-container">
+            <a href="encrypt.html" class="button">Encrypt Message</a>
+            <a href="decrypt.html" class="button">Decrypt Message</a>
+        </div>
+
+        <h2>About This Project</h2>
+        <p>This is an open-source implementation of the encryption/decryption system used by Last Message application. The code is available on GitHub and can be freely audited, modified, and used according to the MIT license.</p>
+
+        <div class="note">
+            <strong>Important:</strong> This web-based tool provides the same encryption as the Last Message app, allowing you to encrypt messages before adding them to the app or decrypt received messages without installing the app.
+        </div>
+
+        <h2>Technical Details</h2>
+        
+        <h3>Encryption Algorithm</h3>
+        <p>The system uses:</p>
+        <ul>
+            <li><strong>Encryption:</strong> AES-GCM (Advanced Encryption Standard in Galois/Counter Mode)</li>
+            <li><strong>Key Derivation:</strong> PBKDF2 (Password-Based Key Derivation Function 2)</li>
+            <li><strong>Hash Function:</strong> SHA-256</li>
+            <li><strong>Key Length:</strong> 256 bits</li>
+            <li><strong>Iterations:</strong> 480,000 rounds for key derivation</li>
+            <li><strong>Salt Size:</strong> 16 bytes (128 bits)</li>
+            <li><strong>IV Size:</strong> 12 bytes (96 bits)</li>
+        </ul>
+
+        <h3>Data Format</h3>
+        <p>The encrypted data is stored in Base64-encoded JSON format with the following structure:</p>
+        <pre>{
+    "salt": "Base64 encoded random salt",
+    "iv": "Base64 encoded initialization vector",
+    "ciphertext": "Base64 encoded encrypted message"
+}</pre>
+
+        <p>The entire object is then Base64 encoded again for safe transport. Example of final output:</p>
+        <pre>eyJzYWx0IjoiUk5LSGk1NFM3eXIybUhUMS9lZStpUT09IiwiaXYiOiJk
+SmFQR2JXc0VpK3hhUUJMIiwiY2lwaGVydGV4dCI6IndFYjV0RzFtcHJu
+YmlGRT0ifQ==</pre>
+
+        <h2>Security Features</h2>
+        <ul>
+            <li>Secure random generation of salt and IV</li>
+            <li>Strong key derivation with high iteration count</li>
+            <li>Authenticated encryption (GCM mode)</li>
+            <li>No data storage in browser</li>
+            <li>Client-side encryption/decryption</li>
+        </ul>
+
+        <h2>Process Flow</h2>
+        <h3>Encryption:</h3>
+        <ol>
+            <li>Generate random salt and IV</li>
+            <li>Derive encryption key from password using PBKDF2</li>
+            <li>Encrypt message using AES-GCM</li>
+            <li>Encode components in Base64</li>
+            <li>Create JSON structure</li>
+            <li>Encode entire JSON in Base64</li>
+        </ol>
+
+        <h3>Decryption:</h3>
+        <ol>
+            <li>Decode outer Base64 to get JSON</li>
+            <li>Parse JSON and decode components</li>
+            <li>Derive key using provided password and salt</li>
+            <li>Decrypt message using AES-GCM with IV</li>
+        </ol>
+
+        <h2>Browser Compatibility</h2>
+        <p>This tool uses the Web Crypto API, which is supported by all modern browsers including:</p>
+        <ul>
+            <li>Chrome 49+</li>
+            <li>Firefox 43+</li>
+            <li>Safari 11+</li>
+            <li>Edge 12+</li>
+        </ul>
+
+        <div class="note">
+            <strong>Note:</strong> For security reasons, this tool only works in secure contexts (HTTPS or localhost).
+        </div>
+
+        <h2>Source Code</h2>
+        <p>The complete source code is available on GitHub. Feel free to review, contribute, or report issues.</p>
+    </div>
+</body>
+</html>
